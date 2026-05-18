@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Диалектная викторина — угадай значение</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #2c5a2a;
+      background-image: radial-gradient(circle at 15% 30%, #3f7840, #1e3a1c);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Georgia', 'Times New Roman', 'Segoe UI', serif;
+      padding: 20px;
+    }
+
+    .screen {
+      transition: opacity 0.5s ease, visibility 0.4s;
+      width: 100%;
+      max-width: 750px;
+    }
+    .screen.hidden {
+      display: none;
+    }
+
+    /* ТИТУЛЬНАЯ СТРАНИЦА */
+    .splash {
+      background: linear-gradient(145deg, #f0faeb, #d6eaca);
+      border-radius: 56px 24px 56px 24px;
+      box-shadow: 0 20px 35px rgba(0,0,0,0.5), inset 0 1px 3px rgba(255,255,200,0.7);
+      padding: 45px 30px;
+      text-align: center;
+      animation: fadeSlide 0.8s ease;
+    }
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .splash-icon {
+      font-size: 5rem;
+      margin-bottom: 20px;
+      filter: drop-shadow(4px 6px 0 rgba(0,0,0,0.15));
+    }
+    .splash-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #2b542c;
+      text-shadow: 2px 2px 0 #cae3b5;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+    .splash-sub {
+      font-size: 1.1rem;
+      background: #cde2bc;
+      display: inline-block;
+      padding: 6px 24px;
+      border-radius: 50px;
+      color: #2d5a1e;
+      margin-bottom: 35px;
+      font-style: italic;
+    }
+    .splash-decor {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 1.8rem;
+      margin: 25px 0;
+      opacity: 0.7;
+    }
+    .btn-start {
+      background: #3f7840;
+      border: none;
+      padding: 16px 48px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      border-radius: 60px;
+      color: #fefadc;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.3);
+      font-family: inherit;
+    }
+    .btn-start:hover {
+      background: #5f9e52;
+      transform: scale(1.02);
+    }
+    .splash-footer {
+      margin-top: 40px;
+      font-size: 0.75rem;
+      color: #6f8f52;
+    }
+
+    /* ОСНОВНАЯ ИГРА */
+    .game-wrapper {
+      background: #eaf7e5;
+      background-image: repeating-linear-gradient(45deg, rgba(100,130,60,0.08) 0px, rgba(100,130,60,0.08) 2px, transparent 2px, transparent 12px);
+      border-radius: 48px 24px 48px 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,245,200,0.8);
+      padding: 30px 28px 40px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      text-align: center;
+      color: #2b5a1e;
+      text-shadow: 1px 1px 0 #dcf2cd;
+      border-bottom: 3px solid #8db36b;
+      display: inline-block;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+    .sub {
+      text-align: center;
+      font-style: italic;
+      color: #4f7542;
+      margin-bottom: 28px;
+      font-size: 0.95rem;
+    }
+
+    .question-card {
+      background: #f5fbed;
+      border-radius: 32px;
+      padding: 28px 20px;
+      margin-bottom: 28px;
+      box-shadow: inset 0 0 0 2px #fffdf5, 0 6px 14px rgba(0,0,0,0.1);
+      border-left: 10px solid #6f9e4b;
+      text-align: center;
+    }
+    .dialect-word {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #2a5320;
+      background: #eef7e6;
+      display: inline-block;
+      padding: 8px 32px;
+      border-radius: 60px;
+    }
+    .question-prompt {
+      font-size: 1.1rem;
+      margin-top: 16px;
+      color: #5f814a;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .option-btn {
+      background: #fdfffa;
+      border: 2px solid #98bb78;
+      border-radius: 60px;
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-family: 'Georgia', serif;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: #2c4222;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .option-btn:hover:not(:disabled) {
+      background: #deefcf;
+      transform: scale(1.01);
+    }
+    .option-prefix {
+      background: #7ca357;
+      width: 32px;
+      height: 32px;
+      border-radius: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    .option-text {
+      flex: 1;
+    }
+    .option-btn:disabled {
+      cursor: default;
+      opacity: 0.75;
+    }
+    .correct-feedback {
+      background: #cbe6ba;
+      border-color: #3b7824;
+    }
+    .wrong-feedback {
+      background: #ffe0cf;
+      border-color: #c45d2c;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      background: #d9e8cd;
+      border-radius: 50px;
+      padding: 8px 20px;
+      margin: 10px 0 18px;
+      font-weight: bold;
+      color: #2f5521;
+    }
+    .score-box {
+      background: #497a33;
+      padding: 4px 16px;
+      border-radius: 40px;
+      color: #feffdb;
+    }
+    .next-btn {
+      background: #678f48;
+      color: #fef8e3;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      width: 100%;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+    .next-btn:hover:not(:disabled) {
+      background: #82ae5c;
+      transform: scale(0.98);
+    }
+    .next-btn:disabled {
+      background: #bbd0a6;
+      cursor: default;
+    }
+    .reset-btn {
+      background: #54853b;
+      margin-top: 12px;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      color: white;
+    }
+    .reset-btn:hover {
+      background: #73a353;
+    }
+    .message-area {
+      text-align: center;
+      margin: 16px 0 0;
+      font-size: 1rem;
+      font-weight: bold;
+      min-height: 50px;
+      color: #3b6925;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.7rem;
+      color: #8daa73;
+      margin-top: 28px;
+    }
+    @media (max-width: 550px) {
+      .game-wrapper { padding: 20px; }
+      .dialect-word { font-size: 1.6rem; }
+      .splash-title { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ТИТУЛЬНАЯ СТРАНИЦА -->
+<div id="splashScreen" class="screen splash">
+  <div class="splash-icon">🌿📖</div>
+  <div class="splash-title">ДИАЛЕКТНАЯ ВИКТОРИНА</div>
+  <div class="splash-sub">Проверь знание русских областных слов</div>
+  <div class="splash-decor">
+    <span>🗣️</span> <span>📜</span> <span>🌾</span> <span>🧺</span>
+  </div>
+  <button id="startGameBtn" class="btn-start">🌱 НАЧАТЬ ИГРУ 🌱</button>
+  <div class="splash-footer">10 диалектизмов. Выберите верное значение</div>
+</div>
+
+<!-- ОСНОВНАЯ ИГРА -->
+<div id="gameScreen" class="screen hidden">
+  <div class="game-wrapper">
+    <h1>🗣️ ДИАЛЕКТНАЯ ВИКТОРИНА</h1>
+    <div class="sub">Русские областные слова — выберите верное значение</div>
+
+    <div class="question-card">
+      <div class="dialect-word" id="wordDisplay">медовник</div>
+      <div class="question-prompt">🔍 Что означает это диалектное слово?</div>
+    </div>
+
+    <div class="options-list" id="optionsContainer"></div>
+
+    <div class="status-bar">
+      <span>📖 Вопрос <span id="currentQ">1</span> / <span id="totalQ">10</span></span>
+      <span class="score-box">🎯 Счёт: <span id="scoreValue">0</span></span>
+    </div>
+
+    <button class="next-btn" id="nextBtn" disabled>➡ Следующий вопрос</button>
+    <button class="reset-btn" id="resetBtn">🔄 Играть снова</button>
+    <div class="message-area" id="messageArea"></div>
+    <footer>✍️ Среди вариантов — только одно верное значение, остальные — случайные слова</footer>
+  </div>
+</div>
+
+<script>
+  // ========== ДАННЫЕ ==========
+  const DIALECT_WORDS = [
+    { word: "медовник", meaning: "пчела" },
+    { word: "медяк", meaning: "медная монета" },
+    { word: "меледа", meaning: "промедление" },
+    { word: "кулёматься", meaning: "закутываться, закрываться платком" },
+    { word: "купальник", meaning: "праздник Ивана Купалы" },
+    { word: "курнявка", meaning: "тихая, непонятно говорящая женщина" },
+    { word: "зызый", meaning: "косой, косоглазый" },
+    { word: "глина", meaning: "заостренная палка" },
+    { word: "изноготник", meaning: "скупой человек" },
+    { word: "заутрок", meaning: "завтрак" }
+  ];
+
+  // БОЛЬШОЙ НАБОР СЛУЧАЙНЫХ СЛОВ (дистракторы)
+  const RANDOM_WORDS = [
+    "дерево", "быстрый", "бежать", "солнце", "синий", "радость", 
+    "большой", "вода", "гора", "письмо", "друг", "город", "тишина", 
+    "свет", "темнота", "путь", "работа", "весна", "камень", "ветер",
+    "красивый", "молоко", "собака", "кошка", "дом", "поле", "река",
+    "лес", "звезда", "луна", "утро", "вечер", "хлеб", "снег", "дождь"
+  ];
+
+  // Перемешивание массива
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // Генерация вопроса: правильное слово + 3 уникальных случайных дистрактора
+  function prepareQuestions() {
+    const allMeanings = DIALECT_WORDS.map(item => item.meaning);
+    const questions = [];
+
+    for (let i = 0; i < DIALECT_WORDS.length; i++) {
+      const current = DIALECT_WORDS[i];
+      const correctMeaning = current.meaning;
+
+      // выбираем 3 разных случайных слова из RANDOM_WORDS, которые:
+      // 1) не совпадают с правильным значением
+      // 2) не повторяются между собой
+      let availableDistractors = [...RANDOM_WORDS];
+      // убираем из списка возможных дистракторов правильный ответ (на случай, если он вдруг есть в RANDOM_WORDS)
+      availableDistractors = availableDistractors.filter(w => w !== correctMeaning);
+      // перемешиваем и берём первые 3
+      shuffleArray(availableDistractors);
+      const distractorSet = availableDistractors.slice(0, 3);
+      
+      // собираем все варианты (правильный + три дистрактора) и перемешиваем
+      let options = [correctMeaning, ...distractorSet];
+      options = shuffleArray(options);
+      
+      questions.push({
+        word: current.word,
+        correctMeaning: correctMeaning,
+        options: options
+      });
+    }
+    // окончательно перемешиваем порядок вопросов
+    return shuffleArray(questions);
+  }
+
+  // Глобальные переменные игры
+  let currentQuestions = [];
+  let currentIndex = 0;
+  let score = 0;
+  let answered = false;
+  let gameActive = true;
+
+  // DOM элементы игры
+  const wordDisplay = document.getElementById('wordDisplay');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const nextBtn = document.getElementById('nextBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const messageArea = document.getElementById('messageArea');
+  const currentQSpan = document.getElementById('currentQ');
+  const totalQSpan = document.getElementById('totalQ');
+  const scoreSpan = document.getElementById('scoreValue');
+
+  // Отрисовка вопроса
+  function renderCurrentQuestion() {
+    if (!gameActive || currentIndex >= currentQuestions.length) {
+      finishGame();
+      return;
+    }
+
+    const q = currentQuestions[currentIndex];
+    wordDisplay.textContent = q.word;
+    optionsContainer.innerHTML = '';
+    
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      const prefix = String.fromCharCode(65 + idx);
+      btn.innerHTML = `<span class="option-prefix">${prefix}</span><span class="option-text">${opt}</span>`;
+      btn.addEventListener('click', () => handleAnswer(opt, btn));
+      optionsContainer.appendChild(btn);
+    });
+
+    answered = false;
+    messageArea.innerHTML = '';
+    document.querySelectorAll('.option-btn').forEach(btn => {
+      btn.classList.remove('correct-feedback', 'wrong-feedback');
+      btn.disabled = false;
+    });
+    nextBtn.disabled = true;
+    currentQSpan.textContent = currentIndex + 1;
+    totalQSpan.textContent = currentQuestions.length;
+    scoreSpan.textContent = score;
+  }
+
+  // Проверка ответа
+  function handleAnswer(selectedMeaning, btnElement) {
+    if (!gameActive || answered) return;
+
+    const currentQ = currentQuestions[currentIndex];
+    const isCorrect = (selectedMeaning === currentQ.correctMeaning);
+
+    const allBtns = document.querySelectorAll('.option-btn');
+    allBtns.forEach(btn => { btn.disabled = true; });
+    answered = true;
+
+    if (isCorrect) {
+      score++;
+      scoreSpan.textContent = score;
+      messageArea.innerHTML = '✅ Верно! +1 балл.';
+      messageArea.style.color = '#2b6b2f';
+      btnElement.classList.add('correct-feedback');
+    } else {
+      messageArea.innerHTML = `❌ Неверно. Правильный ответ: «${currentQ.correctMeaning}».`;
+      messageArea.style.color = '#b4512a';
+      btnElement.classList.add('wrong-feedback');
+      // подсвечиваем правильный вариант зелёным
+      allBtns.forEach(btn => {
+        const spanText = btn.querySelector('.option-text');
+        if (spanText && spanText.innerText === currentQ.correctMeaning) {
+          btn.classList.add('correct-feedback');
+        }
+      });
+    }
+    nextBtn.disabled = false;
+  }
+
+  // Завершение игры
+  function finishGame() {
+    gameActive = false;
+    const total = currentQuestions.length;
+    const percent = Math.round((score / total) * 100);
+    let finalMsg = '';
+    if (score === total) {
+      finalMsg = `🎉 Блестяще! Вы знаток диалектов! ${score} из ${total} (${percent}%) 🎉`;
+    } else if (score >= total / 2) {
+      finalMsg = `📖 Хороший результат! ${score} из ${total} (${percent}%). Попробуйте ещё раз.`;
+    } else {
+      finalMsg = `🌿 Вы угадали ${score} из ${total} (${percent}%). Перечитайте значения и сыграйте снова!`;
+    }
+    wordDisplay.textContent = "📜 Викторина окончена";
+    optionsContainer.innerHTML = `<div style="background:#e3f0d8; border-radius:30px; padding:20px; text-align:center;">${finalMsg}<br><br>🔄 Нажмите «Играть снова» для новой попытки.</div>`;
+    messageArea.innerHTML = '';
+    nextBtn.disabled = true;
+  }
+
+  // Перезапуск
+  function resetAndStart() {
+    currentQuestions = prepareQuestions();
+    currentIndex = 0;
+    score = 0;
+    answered = false;
+    gameActive = true;
+    scoreSpan.textContent = '0';
+    renderCurrentQuestion();
+  }
+
+  function nextQuestion() {
+    if (!gameActive) return;
+    if (!answered) {
+      messageArea.innerHTML = '⚠️ Сначала выберите ответ!';
+      messageArea.style.color = '#b6662c';
+      return;
+    }
+    if (currentIndex + 1 < currentQuestions.length) {
+      currentIndex++;
+      renderCurrentQuestion();
+    } else {
+      finishGame();
+    }
+  }
+
+  function initGame() {
+    currentQuestions = prepareQuestions();
+    currentIndex = 0;
+    score = 0;
+    answered = false;
+    gameActive = true;
+    renderCurrentQuestion();
+  }
+
+  // Переключение экранов
+  const splashScreen = document.getElementById('splashScreen');
+  const gameScreen = document.getElementById('gameScreen');
+  const startButton = document.getElementById('startGameBtn');
+
+  function showGame() {
+    splashScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+    initGame();
+  }
+
+  startButton.addEventListener('click', showGame);
+  nextBtn.addEventListener('click', nextQuestion);
+  resetBtn.addEventListener('click', resetAndStart);
+</script>
+</body>
+</html>
